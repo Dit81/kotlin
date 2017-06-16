@@ -198,14 +198,10 @@ class KotlinCoreEnvironment private constructor(
         val initialRoots = classpathRootsResolver.convertClasspathRoots(configuration.getList(JVMConfigurationKeys.CONTENT_ROOTS))
 
         if (!configuration.getBoolean(JVMConfigurationKeys.SKIP_RUNTIME_VERSION_CHECK)) {
-            val messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
-            if (messageCollector != null) {
-                JvmRuntimeVersionsConsistencyChecker.checkCompilerClasspathConsistency(
-                        messageCollector,
-                        configuration,
-                        initialRoots.mapNotNull { (file, type) -> if (type == JavaRoot.RootType.BINARY) file else null }
-                )
-            }
+            JvmRuntimeVersionsConsistencyChecker.checkCompilerClasspathConsistency(
+                    configuration,
+                    initialRoots.mapNotNull { (file, type) -> if (type == JavaRoot.RootType.BINARY) file else null }
+            )
         }
 
         // REPL and kapt2 update classpath dynamically

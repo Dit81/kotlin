@@ -17,19 +17,19 @@
 package org.jetbrains.kotlin.preprocessor
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
+import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
+import org.jetbrains.kotlin.cli.common.messages.GroupingMessageCollector
+import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
+import org.jetbrains.kotlin.cli.common.messages.PrintingMessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.idea.KotlinFileType
-import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.KtPsiFactory
 import java.io.File
 import java.io.IOException
-
-
-
 
 data class Profile(val name: String, val evaluator: Evaluator, val targetRoot: File)
 
@@ -51,7 +51,11 @@ class Preprocessor(val logger: Logger = SystemOutLogger) {
     val jetPsiFactory: KtPsiFactory
 
     init {
-        val configuration = CompilerConfiguration()
+        val configuration = CompilerConfiguration().apply {
+            put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, GroupingMessageCollector(
+                    PrintingMessageCollector(System.err, MessageRenderer.PLAIN_RELATIVE_PATHS, false)
+            ))
+        }
         val environment = KotlinCoreEnvironment.createForProduction(Disposable {  }, configuration, EnvironmentConfigFiles.EMPTY)
 
         val project = environment.project

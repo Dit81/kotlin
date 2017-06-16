@@ -93,17 +93,14 @@ object JvmRuntimeVersionsConsistencyChecker {
             val otherLibrariesWithBundledRuntime: List<VirtualFile>
     )
 
-    fun checkCompilerClasspathConsistency(
-            messageCollector: MessageCollector,
-            configuration: CompilerConfiguration,
-            classpathJarRoots: List<VirtualFile>
-    ) {
+    fun checkCompilerClasspathConsistency(configuration: CompilerConfiguration, classpathJarRoots: List<VirtualFile>) {
         val runtimeJarsInfo = collectRuntimeJarsInfo(classpathJarRoots)
         if (runtimeJarsInfo.jars.isEmpty()) return
 
         val languageVersionSettings = configuration.languageVersionSettings
         val apiVersion = languageVersionSettings.apiVersion.version
 
+        val messageCollector = configuration.getNotNull(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
         val consistency = checkCompilerClasspathConsistency(messageCollector, apiVersion, runtimeJarsInfo)
         if (consistency is ClasspathConsistency.InconsistentWithApiVersion) {
             val actualRuntimeVersion = consistency.actualRuntimeVersion
